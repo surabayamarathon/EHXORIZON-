@@ -1,1 +1,194 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ticket System PRO</title>
 
+<style>
+body {
+    margin:0;
+    font-family:sans-serif;
+    background:linear-gradient(#020d16,#071f2e);
+    color:white;
+}
+
+.container {
+    max-width:500px;
+    margin:auto;
+    padding:20px;
+}
+
+.box {
+    background:rgba(10,30,50,0.9);
+    padding:20px;
+    border-radius:15px;
+    margin-top:15px;
+    box-shadow:0 0 15px rgba(0,200,255,0.3);
+}
+
+input, select {
+    width:100%;
+    padding:12px;
+    margin:6px 0;
+    border:none;
+    border-radius:8px;
+    background:#000c14;
+    color:white;
+}
+
+button {
+    width:100%;
+    padding:15px;
+    border:none;
+    border-radius:10px;
+    background:linear-gradient(90deg,#00d9ff,#0077ff);
+    color:white;
+    font-weight:bold;
+}
+
+.total {
+    font-size:18px;
+    color:#00d9ff;
+    font-weight:bold;
+}
+
+/* POPUP QRIS */
+#popupQRIS {
+    display:none;
+    position:fixed;
+    top:0; left:0;
+    width:100%; height:100%;
+    background:rgba(0,0,0,0.8);
+    justify-content:center;
+    align-items:center;
+}
+</style>
+
+</head>
+<body>
+
+<div class="container">
+
+<h2 style="text-align:center;">EXO PLANET #6</h2>
+<p style="text-align:center;">7 Juni 2026 • Indonesia Arena</p>
+
+<!-- DATA -->
+<div class="box">
+<input id="nama" placeholder="Nama Lengkap">
+<input id="wa" placeholder="Nomor WhatsApp">
+<input id="email" placeholder="Email">
+</div>
+
+<!-- TIKET -->
+<div class="box">
+<select id="tiket" onchange="hitung()">
+<option value="">Pilih tiket</option>
+<option value="3500000">CAT E/X/O/L - 3.500.000</option>
+<option value="3950000">HORIZON BOX - 3.950.000</option>
+<option value="3550000">CAT 1 - 3.550.000</option>
+<option value="3300000">CAT 2 - 3.300.000</option>
+<option value="2700000">CAT 3 - 2.700.000</option>
+<option value="2250000">CAT 4 - 2.250.000</option>
+<option value="2000000">CAT 5 - 2.000.000</option>
+<option value="1550000">CAT 6 - 1.550.000</option>
+</select>
+
+<input id="jumlah" type="number" placeholder="Jumlah tiket" oninput="generate()">
+
+<div id="list"></div>
+
+<div class="total" id="total">Rp 0</div>
+<small>*Termasuk pajak 10% + fee 5%</small>
+</div>
+
+<button onclick="bayar()">BAYAR SEKARANG</button>
+
+</div>
+
+<!-- POPUP QRIS -->
+<div id="popupQRIS">
+<div style="background:#071f2e; padding:20px; border-radius:15px; text-align:center; width:90%; max-width:350px;">
+
+<h3>Scan QRIS</h3>
+
+<img src="qris.png" style="width:100%; border-radius:10px;">
+
+<p id="totalBayar"></p>
+
+<button onclick="kirim()">SAYA SUDAH BAYAR</button>
+<button onclick="tutup()">Batal</button>
+
+</div>
+</div>
+
+<script>
+function generate(){
+    let jumlah = document.getElementById("jumlah").value;
+    let list = document.getElementById("list");
+
+    list.innerHTML = "";
+
+    for(let i=1;i<=jumlah;i++){
+        list.innerHTML += `
+        <input placeholder="Nama Penonton ${i}">
+        `;
+    }
+
+    hitung();
+}
+
+function hitung(){
+    let harga = document.getElementById("tiket").value;
+    let jumlah = document.getElementById("jumlah").value;
+
+    let subtotal = harga * jumlah;
+    let total = subtotal + (subtotal*0.15);
+
+    if(!total) total = 0;
+
+    document.getElementById("total").innerText =
+    "Rp " + total.toLocaleString("id-ID");
+}
+
+function bayar(){
+    let total = document.getElementById("total").innerText;
+
+    if(total === "Rp 0"){
+        alert("Isi data dulu!");
+        return;
+    }
+
+    document.getElementById("popupQRIS").style.display="flex";
+    document.getElementById("totalBayar").innerText="Total: "+total;
+}
+
+function tutup(){
+    document.getElementById("popupQRIS").style.display="none";
+}
+
+function kirim(){
+    let nama = document.getElementById("nama").value;
+    let wa = document.getElementById("wa").value;
+    let tiket = document.getElementById("tiket");
+    let kategori = tiket.options[tiket.selectedIndex].text;
+    let jumlah = document.getElementById("jumlah").value;
+    let total = document.getElementById("total").innerText;
+
+    let pesan =
+`ORDER TIKET
+
+Nama: ${nama}
+WA: ${wa}
+Kategori: ${kategori}
+Jumlah: ${jumlah}
+Total: ${total}
+
+Saya sudah bayar via QRIS`;
+
+    window.open("https://wa.me/62XXXXXXXXXX?text="+encodeURIComponent(pesan));
+}
+</script>
+
+</body>
+</html>
